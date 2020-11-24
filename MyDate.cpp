@@ -1,9 +1,6 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-string MONTHS[] = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
-string DAYS[] = {"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"};
-int DAYS_IN_MONTHS[] = {31,28,31,30,31,30,31,31,30,31,30,31};
 
 class MyDate{
 private:
@@ -16,6 +13,9 @@ public:
 		this->month = month;
 		this->year = year;
 	}
+	static const string MONTHS[];
+	static const string DAYS[];
+	static const int DAYS_IN_MONTHS[];
 	static bool isLeapYear(int year);
 	static int getDayofYear(int year,int month,int day);
 	bool isValidDate(int year,int month,int day);
@@ -34,7 +34,17 @@ public:
 	MyDate previousDay();
 	MyDate previousMonth();
 	MyDate previousYear();
+	MyDate addDays(int days);
+	MyDate subDays(int days);
+	MyDate addMonths(int months);
+	MyDate subMonths(int months);
+	MyDate addYears(int years);
+	MyDate subYears(int years);
 };
+
+const string MyDate::MONTHS[] = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
+const string MyDate::DAYS[] = {"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"};
+const int MyDate::DAYS_IN_MONTHS[] = {31,28,31,30,31,30,31,31,30,31,30,31};
 
 int MyDate::getDayofYear(int year,int month,int day){
 	int ans = 0;
@@ -127,6 +137,15 @@ string MyDate::toString(){
 	return date;
 }
 
+MyDate MyDate::addDays(int days){
+	MyDate ans(year,month,day);
+	for(int i = 1 ; i <= days ; i++){
+		ans = ans.nextDay();
+	}
+	setDate(ans.getYear(),ans.getMonth(),ans.getDay());
+	return ans;
+}
+
 MyDate MyDate::nextDay(){
 	int day_of_year = getDayofYear(year,month,day) + 1;
 	if(isLeapYear(year)){
@@ -146,10 +165,17 @@ MyDate MyDate::nextDay(){
 			return ans;
 		}
 	}
-	if(day_of_year == 366){
+	if(!isLeapYear(year) and day_of_year == 366){
 		month = 1;
 		day = 1;
 		year++;
+		setDate(year,month,day);
+		MyDate ans(year,month,day);
+		return ans;
+	}
+	if(!isLeapYear(year) and month == 2 and day == 28){
+		month++;
+		day = 1;
 		setDate(year,month,day);
 		MyDate ans(year,month,day);
 		return ans;
@@ -164,6 +190,15 @@ MyDate MyDate::nextDay(){
 	day++;
 	setDate(year,month,day);
 	MyDate ans(year,month,day);
+	return ans;
+}
+
+MyDate MyDate::subDays(int days){
+	MyDate ans(year,month,day);
+	for(int i = 1 ; i <= days ; i++){
+		ans.previousDay();
+	}
+	setDate(ans.getYear(),ans.getMonth(),ans.getDay());
 	return ans;
 }
 
@@ -199,6 +234,15 @@ MyDate MyDate::previousDay(){
 	return ans;
 }
 
+MyDate MyDate::addMonths(int months){
+	MyDate ans(year,month,day);
+	for(int i = 1 ; i <= months ; i++){
+		ans.nextMonth();
+	}
+	setDate(ans.getYear(),ans.getMonth(),ans.getDay());
+	return ans;
+}
+
 MyDate MyDate::nextMonth(){
 	if(month == 12){
 		year++;
@@ -219,6 +263,15 @@ MyDate MyDate::nextMonth(){
 	month++;
 	setDate(year,month,day);
 	MyDate ans(year,month,day);
+	return ans;
+}
+
+MyDate MyDate::subMonths(int months){
+	MyDate ans(year,month,day);
+	for(int i = 1 ; i <= months ; i++){
+		ans.previousMonth();
+	}
+	setDate(ans.getYear(),ans.getMonth(),ans.getDay());
 	return ans;
 }
 
@@ -249,18 +302,41 @@ MyDate MyDate::previousMonth(){
 	return ans;
 }
 
+MyDate MyDate::addYears(int years){
+	MyDate ans(year,month,day);
+	for(int i = 1 ; i <= years ; i++){
+		ans.nextYear();
+	}
+	setDate(ans.getYear(),ans.getMonth(),ans.getDay());
+	return ans;
+}
+
 MyDate MyDate::nextYear(){
 	if(isLeapYear(year) and month == 2 and day == 29)
 		day = DAYS_IN_MONTHS[month - 1];
+	else if(isLeapYear(year + 1) and month == 2 and day == 28)
+		day = DAYS_IN_MONTHS[month - 1] + 1;
 	year++;
 	setDate(year,month,day);
 	MyDate ans(year,month,day);
 	return ans;
 }
 
+MyDate MyDate::subYears(int years){
+	MyDate ans(year,month,day);
+	for(int i = 1 ; i <= years ; i++){
+		ans.previousYear();
+		cout << ans.toString() << endl;
+	}
+	setDate(ans.getYear(),ans.getMonth(),ans.getDay());
+	return ans;
+}
+
 MyDate MyDate::previousYear(){
 	if(isLeapYear(year - 1) and month == 2 and day == 28)
 		day = 29;
+	else if(isLeapYear(year) and month == 2 and day == 29)
+		day = DAYS_IN_MONTHS[month - 1];
 	year--;
 	setDate(year,month,day);
 	MyDate ans(year,month,day);
@@ -269,16 +345,23 @@ MyDate MyDate::previousYear(){
 
 
 int main(){
-	MyDate d1(2012, 2, 28);
-	cout << d1.toString() << endl; // Tuesday 28 Feb 2012
-	cout << d1.nextDay().toString() << endl; // Wednesday 29 Feb 2012
-	cout << d1.nextDay().toString() << endl; // Thursday 1 Mar 2012
-	cout << d1.nextMonth().toString() << endl;; // Sunday 1 Apr 2012
-	cout << d1.nextYear().toString() << endl;; // Monday 1 Apr 2013
-	MyDate d2(2012, 1, 2);
-	cout << d2.toString() << endl; // Monday 2 Jan 2012
-	cout << d2.previousDay().toString() << endl;; // Sunday 1 Jan 2012
-	cout << d2.previousDay().toString() << endl;; // Saturday 31 Dec 2011
-	cout << d2.previousMonth().toString() << endl;; // Wednesday 30 Nov 2011
-	cout << d2.previousYear().toString() << endl;; // Tuesday 30 Nov 2010 
+	MyDate d1(2012, 2, 29);
+	// cout << d1.addMonths(12).toString() << endl;
+	// cout << d1.subMonths(12).toString() << endl;
+	cout << d1.addYears(12).toString() << endl;
+	cout << d1.subYears(12).toString() << endl;
+	// cout << d1.toString() << endl; // Tuesday 28 Feb 2012
+	// cout << d1.addDays(33).toString() << endl;
+	// cout << d1.getDayofYear(d1.getYear(),d1.getMonth(),d1.getDay()) << endl;
+	// cout << d1.subDays(657).toString() << endl; // Wednesday 29 Feb 2012
+	// cout << d1.getDayofYear(d1.getYear(),d1.getMonth(),d1.getDay()) << endl;
+	// cout << d1.nextDay().toString() << endl; // Thursday 1 Mar 2012
+	// cout << d1.nextMonth().toString() << endl;; // Sunday 1 Apr 2012
+	// cout << d1.nextYear().toString() << endl;; // Monday 1 Apr 2013
+	// MyDate d2(2012, 1, 2);
+	// cout << d2.toString() << endl; // Monday 2 Jan 2012
+	// cout << d2.previousDay().toString() << endl;; // Sunday 1 Jan 2012
+	// cout << d2.previousDay().toString() << endl;; // Saturday 31 Dec 2011
+	// cout << d2.previousMonth().toString() << endl;; // Wednesday 30 Nov 2011
+	// cout << d2.previousYear().toString() << endl;; // Tuesday 30 Nov 2010 
 }
