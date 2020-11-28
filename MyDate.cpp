@@ -371,4 +371,11 @@ int main(){
 	cout << d2.previousDay().toString() << endl;
 	cout << d2.previousMonth().toString() << endl;
 	cout << d2.previousYear().toString() << endl; 
+	MyDate d3(2020,12,27);
+	MyDate d4(2021,3,2);
+	while(true){         // test program that tests the nextDay() in a loop, by printing the dates from 28 Dec 2020 to 2 Mar 2021.
+        d3.nextDay();                                   
+	    cout << d3.toString() << endl;
+	    if(d3.toString() == d4.toString()) break;
+	}
 }
